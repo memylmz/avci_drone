@@ -7,7 +7,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"          # .../Avcı Drone/hibrit_takip
 ROOT="$(dirname "$HERE")"                       # .../Avcı Drone
 VENV="$ROOT/.venv"
-OSTRACK="$ROOT/OSTrack"
+OSTRACK="$HERE/OSTrack"
 CKPT="$OSTRACK/output/checkpoints/train/ostrack/vitb_256_mae_ce_32x4_ep300/OSTrack_ep0300.pth.tar"
 CKPT_ID="1dySfPrSk-knAEo0lTXqZ1kMk3BCvVofV"   # resmi OSTrack Google Drive dosyası
 
@@ -60,4 +60,4 @@ echo
 echo "Kurulum tamam. Çalıştırmak için:"
 echo "  source \"$VENV/bin/activate\""
 echo "  cd \"$HERE\""
-echo "  python run_on_video.py --video VIDEO.mp4 --weights MODEL.pt --ostrack-root ../OSTrack --show"
+echo "  python run_on_video.py --video VIDEO.mp4 --weights MODEL.pt --ostrack-root OSTrack --show"

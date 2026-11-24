@@ -11,8 +11,11 @@ __pycache__/
 .venv/
 venv/
 
-# --- OSTrack: kurulum_mac.sh klonlar, yamalar ve ağırlığı indirir ---
-OSTrack/
+# --- OSTrack: kod repoda; ağırlık (~370 MB) ve bilgisayara özel yollar değil ---
+# Ağırlığı kurulum_mac.sh (veya Colab defteri) indirir, local.py dosyalarını oluşturur.
+hibrit_takip/OSTrack/output/
+hibrit_takip/OSTrack/lib/test/evaluation/local.py
+hibrit_takip/OSTrack/lib/train/admin/local.py
 
 # --- Üretilen çıktılar (run_on_video.py) ---
 hibrit_takip/sonuc*.csv

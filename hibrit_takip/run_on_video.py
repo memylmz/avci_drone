@@ -1,7 +1,7 @@
 """Hibrit takipçiyi bir video dosyası üzerinde çalıştıran demo.
 
 Yerelde (Mac'te Apple GPU otomatik kullanılır):
-    python run_on_video.py --video ucus.mp4 --weights best.pt --ostrack-root ../OSTrack --show
+    python run_on_video.py --video ucus.mp4 --weights best.pt --ostrack-root OSTrack --show
 
 Colab'da (ekran yok; sonuç videoya ve CSV'ye yazılır):
     !python run_on_video.py --video /content/drive/MyDrive/avci/ucus.mp4 \

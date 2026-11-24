@@ -66,7 +66,7 @@ bash kurulum_mac.sh
 Script şunları yapar:
 - `Avcı Drone/.venv` sanal ortamını kurar.
 - Paketleri yükler.
-- OSTrack'i `Avcı Drone/OSTrack` klasörüne indirip hazırlar.
+- OSTrack kodu repoda (`hibrit_takip/OSTrack`, yamalar uygulanmış). Script bilgisayara özel yolları oluşturur ve ağırlığı indirir.
 - OSTrack ağırlığını indirir.
 - Testleri çalıştırır.
 
@@ -77,7 +77,7 @@ Tekrar çalıştırmak güvenli, hazır olan adımları atlar.
 ```bash
 cd ~/Desktop/Teknofest/"Avcı Drone"/hibrit_takip
 source ../.venv/bin/activate
-python run_on_video.py --video VIDEON.mp4 --weights MODELIN.pt --ostrack-root ../OSTrack --show --out-video sonuc.mp4 --csv sonuc.csv
+python run_on_video.py --video VIDEON.mp4 --weights MODELIN.pt --ostrack-root OSTrack --show --out-video sonuc.mp4 --csv sonuc.csv
 ```
 
 - `--show`: canlı pencere açar. `q` veya `Esc` ile kapanır.
@@ -88,9 +88,8 @@ python run_on_video.py --video VIDEON.mp4 --weights MODELIN.pt --ostrack-root ..
 
 ```bash
 pip install torch torchvision ultralytics opencv-python easydict timm jpeg4py lmdb pyyaml gdown pytest
-git clone https://github.com/botaoye/OSTrack.git
-python hibrit_takip/colab/prepare_ostrack.py --ostrack-root OSTrack --save-dir OSTrack/output
-gdown 1dySfPrSk-knAEo0lTXqZ1kMk3BCvVofV -O OSTrack/output/checkpoints/train/ostrack/vitb_256_mae_ce_32x4_ep300/OSTrack_ep0300.pth.tar
+python hibrit_takip/colab/prepare_ostrack.py --ostrack-root hibrit_takip/OSTrack --save-dir hibrit_takip/OSTrack/output
+gdown 1dySfPrSk-knAEo0lTXqZ1kMk3BCvVofV -O hibrit_takip/OSTrack/output/checkpoints/train/ostrack/vitb_256_mae_ce_32x4_ep300/OSTrack_ep0300.pth.tar
 ```
 
 Patch uygulanmazsa (satır numaraları sürüme göre değişebilir) `lib/test/tracker/ostrack.py` içinde elle yapın:
@@ -101,7 +100,7 @@ Patch'siz çalışır ama skor hep 1.0 olur ve uyarı loglanır; bu durumda dü�
 ## Çalıştırma
 
 ```bash
-python run_on_video.py --video ucus.mp4 --weights best.pt --ostrack-root ../OSTrack --csv sonuc.csv --out-video sonuc.mp4
+python run_on_video.py --video ucus.mp4 --weights best.pt --ostrack-root OSTrack --csv sonuc.csv --out-video sonuc.mp4
 ```
 
 - `--show`: canlı pencere açar (sadece ekranlı bilgisayarda; `q`/`Esc` ile çıkılır). Varsayılan: kapalı.
