@@ -207,7 +207,13 @@ def main() -> None:
     if not args.out_video and not show:
         print("Uyarı: --out-video verilmedi, sadece CSV yazılacak.")
 
-    weights = args.weights or default_weights()
+    weights = args.weights
+    # Verilen dosya yoksa (ör. model yeniden adlandırıldı) modeller/ klasöründekine geç.
+    # Ultralytics'in kendi indirdiği resmi modeller (yolo11n.pt vb.) için dokunma.
+    if weights and not os.path.isfile(weights) and not os.path.basename(weights).lower().startswith(("yolo", "rtdetr")):
+        print(f"Uyarı: '{weights}' bulunamadı; modeller/ klasöründeki model kullanılacak.")
+        weights = None
+    weights = weights or default_weights()
     print(f"YOLO modeli: {weights}")
     sot = OSTrackWrapper(args.ostrack_root, param_name=args.ostrack_param, device=args.ostrack_device)
     yolo_device = args.device or auto_yolo_device()
