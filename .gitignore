@@ -25,3 +25,4 @@ hibrit_takip/OSTrack/lib/train/admin/local.py
 # Testler ve Colab klasörü repoya girmez
 hibrit_takip/tests/
 hibrit_takip/colab/
+hibrit_takip/docs/
