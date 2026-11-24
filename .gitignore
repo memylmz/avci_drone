@@ -1,0 +1,31 @@
+# --- macOS ---
+.DS_Store
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Sanal ortam (kurulum_mac.sh yeniden oluşturur) ---
+.venv/
+venv/
+
+# --- OSTrack: kurulum_mac.sh klonlar, yamalar ve ağırlığı indirir ---
+OSTrack/
+
+# --- Üretilen çıktılar (run_on_video.py) ---
+hibrit_takip/sonuc*.csv
+hibrit_takip/sonuc*.mp4
+hibrit_takip/takip_video*.mp4
+*_h264.mp4
+
+# --- Colab için hazırlanan paket (repodan zaten üretilebilir) ---
+hibrit_takip.zip
+
+# --- Büyük ağırlık / veri dosyaları ---
+*.pth
+*.pth.tar
+# Kendi YOLO modelimiz repoda tutuluyor; başka .pt dosyalarını yükleme
+*.pt
+!hibrit_takip/modeller/*.pt
