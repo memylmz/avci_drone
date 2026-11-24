@@ -161,7 +161,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="YOLO + OSTrack + Kalman hibrit takip demosu")
     ap.add_argument("--video", required=True)
     ap.add_argument("--weights", required=True, help="YOLO ağırlık dosyası (ultralytics)")
-    ap.add_argument("--ostrack-root", required=True, help="OSTrack reposunun kök dizini")
+    ap.add_argument("--ostrack-root", default=None, help="OSTrack klasörü. Boşsa hibrit_takip/OSTrack otomatik bulunur")
     ap.add_argument("--ostrack-param", default="vitb_256_mae_ce_32x4_ep300")
     ap.add_argument("--classes", type=int, nargs="*", default=None, help="YOLO sınıf filtresi")
     ap.add_argument("--imgsz", type=int, default=640)

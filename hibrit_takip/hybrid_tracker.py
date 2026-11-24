@@ -73,7 +73,7 @@ class TrackerParams:
     confirm_dist: float = 40.0       # ardışık tespit merkezleri arası maks. mesafe (px)
     det_conf: float = 0.5            # YOLO güven eşiği
     # TAKIP
-    verify_every: int = 20 # kaç karede bir YOLO ile doğrulama yapılır
+    verify_every: int = 30 # kaç karede bir YOLO ile doğrulama yapılır
     reinit_iou: float = 0.5          # YOLO-OSTrack IoU'su bunu geçerse OSTrack yeniden başlatılır
     track_score_min: float = 0.35    # OSTrack skor eşiği
     low_score_patience: int = 3      # art arda kaç düşük skorlu karede KAYIP'a geçilir
@@ -215,6 +215,59 @@ class KalmanBoxFilter:
 # OSTrack sarmalayıcı
 # ---------------------------------------------------------------------------
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+OSTRACK_CKPT_DRIVE_ID = "1dySfPrSk-knAEo0lTXqZ1kMk3BCvVofV"  # vitb_256_mae_ce_32x4_ep300 resmi ağırlığı
+
+
+def _is_ostrack_root(path: str) -> bool:
+    return os.path.isfile(os.path.join(path, "lib", "test", "evaluation", "tracker.py"))
+
+
+def find_ostrack_root(given: Optional[str] = None) -> str:
+    """OSTrack klasörünü bulur. Verilen yol yanlışsa bilinen konumlara bakar:
+    verilen yol (çalışma dizinine ve bu dosyaya göre), hibrit_takip/OSTrack, Avcı Drone/OSTrack."""
+    cands: List[str] = []
+    if given:
+        g = os.path.expanduser(given)
+        cands += [os.path.abspath(g), os.path.abspath(os.path.join(_HERE, g))]
+    cands += [os.path.join(_HERE, "OSTrack"), os.path.join(os.path.dirname(_HERE), "OSTrack")]
+    for c in cands:
+        if _is_ostrack_root(c):
+            if given and os.path.abspath(c) != cands[0]:
+                logger.warning("'%s' yolunda OSTrack yok; %s kullanılıyor.", given, c)
+            return os.path.abspath(c)
+    tried = "\n  ".join(dict.fromkeys(cands))
+    raise FileNotFoundError(f"OSTrack klasörü bulunamadı. Bakılan yerler:\n  {tried}\n"
+                            "--ostrack-root ile OSTrack klasörünün yolunu verin.")
+
+
+def ensure_ostrack_local_files(root: str) -> None:
+    """OSTrack'in local.py dosyaları mutlak yol içerir. Eksikse ya da klasör taşınmışsa yeniden üretir."""
+    local = os.path.join(root, "lib", "test", "evaluation", "local.py")
+    if os.path.isfile(local):
+        with open(local, encoding="utf-8") as f:
+            if f"'{root}'" in f.read():
+                return
+    import subprocess
+    r = subprocess.run([sys.executable, os.path.join("tracking", "create_default_local_file.py"),
+                        "--workspace_dir", root, "--data_dir", os.path.join(root, "data"),
+                        "--save_dir", os.path.join(root, "output")],
+                       cwd=root, capture_output=True, text=True)
+    if r.returncode != 0:
+        raise RuntimeError(f"OSTrack local.py oluşturulamadı:\n{r.stderr}")
+    logger.info("OSTrack local.py dosyaları bu klasöre göre yeniden oluşturuldu.")
+
+
+def check_ostrack_checkpoint(root: str, tracker_name: str, param_name: str) -> None:
+    """Ağırlık dosyası yoksa nereye konacağını söyleyen anlaşılır bir hata verir."""
+    ckpt_dir = os.path.join(root, "output", "checkpoints", "train", tracker_name, param_name)
+    if os.path.isdir(ckpt_dir) and any(f.endswith(".pth.tar") for f in os.listdir(ckpt_dir)):
+        return
+    target = os.path.join(ckpt_dir, "OSTrack_ep0300.pth.tar")
+    raise FileNotFoundError(
+        f"OSTrack ağırlık dosyası yok. İndirip şuraya koyun:\n  {target}\n"
+        f"İndirmek için:  gdown {OSTRACK_CKPT_DRIVE_ID} -O \"{target}\"")
+
 class OSTrackWrapper:
     """botaoye/OSTrack için init/update sarmalayıcı.
 
@@ -234,10 +287,12 @@ class OSTrackWrapper:
         # MPS'te desteklenmeyen nadir işlemler CPU'ya düşsün (torch importundan önce ayarlanmalı)
         os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
         os.environ["OSTRACK_DEVICE"] = device
-        if ostrack_root:
-            root = os.path.abspath(os.path.expanduser(ostrack_root))
-            if root not in sys.path:
-                sys.path.insert(0, root)
+        root = find_ostrack_root(ostrack_root)
+        logger.info("OSTrack klasörü: %s", root)
+        ensure_ostrack_local_files(root)
+        check_ostrack_checkpoint(root, tracker_name, param_name)
+        if root not in sys.path:
+            sys.path.insert(0, root)
         # OSTrack bağımlılığı sadece bu sınıf kullanılırsa yüklenir
         try:
             from lib.utils.device import OST_DEVICE  # type: ignore
