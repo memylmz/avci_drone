@@ -1,0 +1,27 @@
+diff --git a/lib/test/tracker/ostrack.py b/lib/test/tracker/ostrack.py
+index 3674779..f4bf228 100644
+--- a/lib/test/tracker/ostrack.py
++++ b/lib/test/tracker/ostrack.py
+@@ -87,6 +87,8 @@ class OSTrack(BaseTracker):
+         # add hann windows
+         pred_score_map = out_dict['score_map']
+         response = self.output_window * pred_score_map
++        # Hibrit takip icin guven skoru: Hann pencereli skor haritasinin maksimumu
++        best_score = float(response.max())
+         pred_boxes = self.network.box_head.cal_bbox(response, out_dict['size_map'], out_dict['offset_map'])
+         pred_boxes = pred_boxes.view(-1, 4)
+         # Baseline: Take the mean of all pred boxes as the final result
+@@ -127,9 +129,11 @@ class OSTrack(BaseTracker):
+             all_boxes = self.map_box_back_batch(pred_boxes * self.params.search_size / resize_factor, resize_factor)
+             all_boxes_save = all_boxes.view(-1).tolist()  # (4N, )
+             return {"target_bbox": self.state,
+-                    "all_boxes": all_boxes_save}
++                    "all_boxes": all_boxes_save,
++                    "best_score": best_score}
+         else:
+-            return {"target_bbox": self.state}
++            return {"target_bbox": self.state,
++                    "best_score": best_score}
+ 
+     def map_box_back(self, pred_box: list, resize_factor: float):
+         cx_prev, cy_prev = self.state[0] + 0.5 * self.state[2], self.state[1] + 0.5 * self.state[3]
