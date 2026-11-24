@@ -22,3 +22,6 @@ hibrit_takip/OSTrack/lib/test/evaluation/local.py
 hibrit_takip/OSTrack/lib/train/admin/local.py
 *.pth
 *.pth.tar
+# Testler ve Colab klasörü repoya girmez
+hibrit_takip/tests/
+hibrit_takip/colab/
