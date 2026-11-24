@@ -16,9 +16,6 @@ OSTrack/
 
 # --- Üretilen çıktılar (run_on_video.py) ---
 hibrit_takip/sonuc*.csv
-hibrit_takip/sonuc*.mp4
-hibrit_takip/takip_video*.mp4
-*_h264.mp4
 
 # --- Colab için hazırlanan paket (repodan zaten üretilebilir) ---
 hibrit_takip.zip
