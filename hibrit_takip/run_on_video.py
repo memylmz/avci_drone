@@ -157,10 +157,26 @@ def process_video(video: str, tracker: HybridTracker, csv_path: str,
     return n
 
 
+MODELS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modeller")
+
+
+def default_weights() -> str:
+    """modeller/ klasöründeki .pt dosyasını döndürür (birden fazlaysa en yenisi).
+    Böylece model dosyasının adı değişse de kod değişmez."""
+    import glob
+    pts = sorted(glob.glob(os.path.join(MODELS_DIR, "*.pt")), key=os.path.getmtime)
+    if not pts:
+        raise SystemExit(f"YOLO modeli bulunamadı: {MODELS_DIR} içine .pt koyun ya da --weights verin.")
+    if len(pts) > 1:
+        print(f"modeller/ içinde {len(pts)} model var; en yenisi kullanılıyor (başkası için --weights verin).")
+    return pts[-1]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="YOLO + OSTrack + Kalman hibrit takip demosu")
     ap.add_argument("--video", required=True)
-    ap.add_argument("--weights", required=True, help="YOLO ağırlık dosyası (ultralytics)")
+    ap.add_argument("--weights", default=None,
+                    help="YOLO ağırlık dosyası (.pt). Boşsa hibrit_takip/modeller içindeki model kullanılır")
     ap.add_argument("--ostrack-root", default=None, help="OSTrack klasörü. Boşsa hibrit_takip/OSTrack otomatik bulunur")
     ap.add_argument("--ostrack-param", default="vitb_256_mae_ce_32x4_ep300")
     ap.add_argument("--classes", type=int, nargs="*", default=None, help="YOLO sınıf filtresi")
@@ -191,11 +207,13 @@ def main() -> None:
     if not args.out_video and not show:
         print("Uyarı: --out-video verilmedi, sadece CSV yazılacak.")
 
+    weights = args.weights or default_weights()
+    print(f"YOLO modeli: {weights}")
     sot = OSTrackWrapper(args.ostrack_root, param_name=args.ostrack_param, device=args.ostrack_device)
     yolo_device = args.device or auto_yolo_device()
     half = args.half and yolo_device not in ("cpu", "mps")
     print(f"Cihazlar: YOLO={yolo_device}, OSTrack={sot.device}")
-    detector = UltralyticsDetector(args.weights, imgsz=args.imgsz, classes=args.classes,
+    detector = UltralyticsDetector(weights, imgsz=args.imgsz, classes=args.classes,
                                    device=yolo_device, half=half)
     tracker = HybridTracker(detector, sot, params)
     process_video(args.video, tracker, args.csv, args.out_video, show=show, max_frames=args.max_frames)
