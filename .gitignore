@@ -1,31 +1,24 @@
-# --- macOS ---
+# Beyaz liste: her şey yok sayılır, sadece aşağıda "!" ile açılanlar repoya girer.
+*
+!*/
+
+# --- Repoya girenler ---
+!.gitignore
+!*.py
+!*.mp4
+!hibrit_takip/modeller/**
+!hibrit_takip/OSTrack/**
+
+# --- Yukarıdaki istisnalara rağmen hariç tutulanlar ---
 .DS_Store
-
-# --- Python ---
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.ipynb_checkpoints/
-
-# --- Sanal ortam (kurulum_mac.sh yeniden oluşturur) ---
 .venv/
 venv/
-
-# --- OSTrack: kod repoda; ağırlık (~370 MB) ve bilgisayara özel yollar değil ---
-# Ağırlığı kurulum_mac.sh (veya Colab defteri) indirir, local.py dosyalarını oluşturur.
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+# OSTrack ağırlığı (~370 MB) ve bilgisayara özel yollar
 hibrit_takip/OSTrack/output/
 hibrit_takip/OSTrack/lib/test/evaluation/local.py
 hibrit_takip/OSTrack/lib/train/admin/local.py
-
-# --- Üretilen çıktılar (run_on_video.py) ---
-hibrit_takip/sonuc*.csv
-
-# --- Colab için hazırlanan paket (repodan zaten üretilebilir) ---
-hibrit_takip.zip
-
-# --- Büyük ağırlık / veri dosyaları ---
 *.pth
 *.pth.tar
-# Kendi YOLO modelimiz repoda tutuluyor; başka .pt dosyalarını yükleme
-*.pt
-!hibrit_takip/modeller/*.pt
